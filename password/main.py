@@ -1,14 +1,48 @@
 import hashlib
 import json
+import os.path
+
+# Fonction pour ajouter données dans un fichier json
+def add_on_json(user, password):
+    if os.path.isfile("data.json"):
+        with open('data.json', 'r+') as file_json:
+            dict_json = json.load(file_json)
+            dict_json.setdefault("infos", []).append({"user": user, "password" : password})
+            file_json.truncate(0)
+            file_json.seek(0)
+            json.dump((dict_json), file_json, indent=4)
+    else:
+        with open('data.json', 'w') as file_json:
+            json.dump({"infos": [{"user": user, "password" : password}]}, file_json, indent=4)
+
+# Fonction pour hasher le mdp
 def hashed_password(password):
+    # encodage du mdp 
     encode_password = password.encode()
+    # hashing du mdp
     new_password = hashlib.sha256(encode_password).hexdigest()
-    data = {"mdp": new_password}
-    with open ("password/doc.json", "a") as file:
-        json.dump(data, file)
     return new_password
 
-def create_password():
+# Fonction pour création de mdp et vérification
+def create_user_with_password():
+    hashed_pswd = ""
+    while True:
+        user = input('Créer un nom d\'utilisateur : ')
+        if os.path.isfile("data.json"):
+            with open('data.json', 'r') as file_json:
+                dict_json = json.load(file_json)
+                # Vérifier si l'utilisateur existe déjà dans le dictionnaire
+                for info in dict_json["infos"]:
+                    if info["user"] == user:
+                        print("L'utilisateur existe déjà.")
+                        break
+                else:
+                    # L'utilisateur n'existe pas encore
+                    break
+        else:
+            # Fichier JSON n'existe pas encore
+            break
+
     while True:
         password = input('Créer votre mot de passe : ')
         nbr_maj = 0
@@ -30,9 +64,8 @@ def create_password():
             print('Votre mot de passe doit contenir au moins 8 caractères,une lettre en majuscule et minuscule, un chiffre et un caractère spécial(!, @, #, $, %, ^, &, *).')
         else:
             print('ok')
-            hashed_password(password)
+            hashed_pswd = hashed_password(password)
             break
+    add_on_json(user, hashed_pswd)
 
-
-
-create_password()
+create_user_with_password()
