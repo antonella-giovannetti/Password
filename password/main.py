@@ -27,6 +27,7 @@ def menu():
                         print(i['user'] + ": " + i['password'])
                     print(' ')
             else:
+                # This is a print function
                 print('Il n\'y a pas encore de compte enregistré')
         elif number == "3":
             break
